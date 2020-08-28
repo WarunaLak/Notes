@@ -18,17 +18,31 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.waruna.notes2.data.network.MyApi;
+import com.waruna.notes2.data.network.RetrofitClient;
+import com.waruna.notes2.data.network.models.Posts;
 import com.waruna.notes2.edit.AddEditNoteActivity;
 import com.waruna.notes2.R;
-import com.waruna.notes2.db.Note;
+import com.waruna.notes2.data.db.entities.Note;
 
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
 
     private NoteViewModel noteViewModel;
+
+    // test api
+    MyApi myApi;
+    CompositeDisposable compositeDisposable;
+    // test
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +100,29 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent,EDIT_NOTE_REQUEST);
             }
         });
+
+        // test
+        Retrofit retrofit = RetrofitClient.getInstance();
+        myApi = retrofit.create(MyApi.class);
+        compositeDisposable = new CompositeDisposable();
+        // ---
+        compositeDisposable.add(myApi.getPosts()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<Posts>>() {
+                    @Override
+                    public void accept(List<Posts> posts) throws Exception {
+                        //displayData(posts);
+                        StringBuffer buffer = new StringBuffer();
+                        for (Posts post : posts) {
+                            buffer.append(post.title);
+                            buffer.append(", ");
+                        }
+
+                        Toast.makeText(MainActivity.this, "POSTS : "+buffer.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }));
+        // test
     }
 
     @Override
@@ -140,4 +177,12 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    // test
+    @Override
+    protected void onStop() {
+        compositeDisposable.clear();
+        super.onStop();
+    }
+    // test
 }

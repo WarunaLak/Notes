@@ -1,4 +1,4 @@
-package com.waruna.notes2.db;
+package com.waruna.notes2.data.db.entities;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

@@ -1,4 +1,4 @@
-package com.waruna.notes2.db;
+package com.waruna.notes2.data.db;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -6,6 +6,8 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
+
+import com.waruna.notes2.data.db.entities.Note;
 
 import java.util.List;
 

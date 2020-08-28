@@ -1,14 +1,14 @@
-package com.waruna.notes2.repositories;
+package com.waruna.notes2.data.repositories;
 
 import android.app.Application;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
 
-import com.waruna.notes2.db.DatabaseClient;
-import com.waruna.notes2.db.Note;
-import com.waruna.notes2.db.NoteDao;
-import com.waruna.notes2.db.NoteDatabase;
+import com.waruna.notes2.data.db.DatabaseClient;
+import com.waruna.notes2.data.db.entities.Note;
+import com.waruna.notes2.data.db.NoteDao;
+import com.waruna.notes2.data.db.NoteDatabase;
 
 import java.util.List;
 

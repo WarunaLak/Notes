@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
-import com.waruna.notes2.db.Note;
-import com.waruna.notes2.repositories.NoteRepository;
+import com.waruna.notes2.data.db.entities.Note;
+import com.waruna.notes2.data.repositories.NoteRepository;
 
 import java.util.List;
 

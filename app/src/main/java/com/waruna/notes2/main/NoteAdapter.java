@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.waruna.notes2.R;
-import com.waruna.notes2.db.Note;
+import com.waruna.notes2.data.db.entities.Note;
 
 public class NoteAdapter extends ListAdapter<Note,NoteAdapter.NoteHolder> {
     private OnItemClickListener listener;
