@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
 
+import com.waruna.notes2.db.DatabaseClient;
 import com.waruna.notes2.db.Note;
 import com.waruna.notes2.db.NoteDao;
 import com.waruna.notes2.db.NoteDatabase;
@@ -17,7 +18,7 @@ public class NoteRepository {
     private LiveData<List<Note>> allNotes;
 
     public NoteRepository(Application application){
-        NoteDatabase database = NoteDatabase.getInstance(application);
+        NoteDatabase database = DatabaseClient.getInstance(application);
         noteDao = database.noteDao();
         allNotes = noteDao.getAllNote();
     }
