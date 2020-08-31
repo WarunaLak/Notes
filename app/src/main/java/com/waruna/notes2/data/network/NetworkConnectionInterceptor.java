@@ -20,7 +20,7 @@ public class NetworkConnectionInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         if (!isInternetAvailable()){
-            throw new NoInternetException("Make sure ...");
+            throw new NoInternetException("Internet connection is not available.");
         }
 
         return chain.proceed(chain.request());

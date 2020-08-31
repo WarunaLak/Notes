@@ -14,6 +14,6 @@ public interface MyApi {
 //    Response<List<PostsResponse>> getPosts();
 
     @GET("posts")
-    Observable<List<PostsResponse>> getPosts();
+    Observable<Response<List<PostsResponse>>> getPosts();
 
 }

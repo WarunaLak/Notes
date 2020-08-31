@@ -1,8 +1,6 @@
 package com.waruna.notes2.util;
 
-import java.io.IOException;
-
-public class NoInternetException extends IOException {
+public class NoInternetException extends RuntimeException {
     public NoInternetException(String s) {
         super(s);
     }
