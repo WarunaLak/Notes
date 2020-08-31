@@ -1,15 +1,15 @@
-package com.waruna.notes2.data.network.models;
+package com.waruna.notes2.data.network.responses;
 
-public class Posts {
+public class PostsResponse {
     public int userId;
     public int id;
     public String title;
     public String body;
 
-    public Posts() {
+    public PostsResponse() {
     }
 
-    public Posts(int userId, int id, String title, String body) {
+    public PostsResponse(int userId, int id, String title, String body) {
         this.userId = userId;
         this.id = id;
         this.title = title;

@@ -1,4 +1,4 @@
-package com.waruna.notes2.main;
+package com.waruna.notes2.ui.main;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,9 +20,10 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.waruna.notes2.data.network.MyApi;
+import com.waruna.notes2.data.network.NetworkConnectionInterceptor;
 import com.waruna.notes2.data.network.RetrofitClient;
-import com.waruna.notes2.data.network.models.Posts;
-import com.waruna.notes2.edit.AddEditNoteActivity;
+import com.waruna.notes2.data.network.responses.PostsResponse;
+import com.waruna.notes2.ui.edit.AddEditNoteActivity;
 import com.waruna.notes2.R;
 import com.waruna.notes2.data.db.entities.Note;
 
@@ -29,7 +31,9 @@ import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 
@@ -97,24 +101,73 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(AddEditNoteActivity.EXTRA_TITLE, note.getTitle());
                 intent.putExtra(AddEditNoteActivity.EXTRA_DESCRIPTION, note.getDescription());
                 intent.putExtra(AddEditNoteActivity.EXTRA_PRIORITY, note.getPriority());
-                startActivityForResult(intent,EDIT_NOTE_REQUEST);
+                startActivityForResult(intent, EDIT_NOTE_REQUEST);
             }
         });
 
         // test
-        Retrofit retrofit = RetrofitClient.getInstance();
+        Retrofit retrofit = RetrofitClient.getInstance(new NetworkConnectionInterceptor(this.getApplicationContext()));
         myApi = retrofit.create(MyApi.class);
         compositeDisposable = new CompositeDisposable();
         // ---
-        compositeDisposable.add(myApi.getPosts()
+        compositeDisposable.add(
+                myApi.getPosts()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<List<PostsResponse>>() {
+                            @Override
+                            public void accept(List<PostsResponse> posts) throws Exception {
+                                //displayData(posts);
+                                StringBuffer buffer = new StringBuffer();
+                                for (PostsResponse post : posts) {
+                                    buffer.append(post.title);
+                                    buffer.append(", ");
+                                }
+
+                                Toast.makeText(MainActivity.this, "POSTS : " + buffer.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                Toast.makeText(MainActivity.this, "error : "+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e("error : ",throwable.getMessage());
+                            }
+                        })
+        );
+
+/*
+        myApi.getPosts()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<Posts>>() {
+                .subscribe(new io.reactivex.Observer<List<PostsResponse>>() {
                     @Override
-                    public void accept(List<Posts> posts) throws Exception {
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<PostsResponse> postsResponses) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+*/
+        /*
+        .subscribe(new Consumer<List<PostsResponse>>() {
+                    @Override
+                    public void accept(List<PostsResponse> posts) throws Exception {
                         //displayData(posts);
                         StringBuffer buffer = new StringBuffer();
-                        for (Posts post : posts) {
+                        for (PostsResponse post : posts) {
                             buffer.append(post.title);
                             buffer.append(", ");
                         }
@@ -122,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "POSTS : "+buffer.toString(), Toast.LENGTH_SHORT).show();
                     }
                 }));
+         */
         // test
     }
 
@@ -138,10 +192,10 @@ public class MainActivity extends AppCompatActivity {
             noteViewModel.insert(note);
 
             Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
-        } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK){
+        } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK) {
             int id = data.getIntExtra(AddEditNoteActivity.EXTRA_ID, -1);
 
-            if (id == -1){
+            if (id == -1) {
                 Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
                 return;
             }
