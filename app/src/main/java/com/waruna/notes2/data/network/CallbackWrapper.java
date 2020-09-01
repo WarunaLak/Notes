@@ -1,5 +1,7 @@
 package com.waruna.notes2.data.network;
 
+import com.waruna.notes2.util.ApiException;
+
 import io.reactivex.functions.Consumer;
 import retrofit2.Response;
 
@@ -12,9 +14,8 @@ public abstract class CallbackWrapper<T extends Response> implements Consumer<T>
 
         if (t.isSuccessful()){
             onSuccess(t);
-            throw new Exception("Test e 2");
         } else {
-            throw new Exception("Test e");
+            throw new ApiException(t.errorBody().string()+" : "+t.code());
         }
     }
 

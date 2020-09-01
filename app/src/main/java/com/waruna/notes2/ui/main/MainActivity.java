@@ -1,5 +1,13 @@
 package com.waruna.notes2.ui.main;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,52 +17,18 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.waruna.notes2.data.network.CallbackWrapper;
-import com.waruna.notes2.data.network.MyApi;
-import com.waruna.notes2.data.network.NetworkConnectionInterceptor;
-import com.waruna.notes2.data.network.RetrofitClient;
-import com.waruna.notes2.data.network.responses.PostsResponse;
-import com.waruna.notes2.ui.edit.AddEditNoteActivity;
 import com.waruna.notes2.R;
 import com.waruna.notes2.data.db.entities.Note;
-import com.waruna.notes2.util.NoInternetException;
+import com.waruna.notes2.ui.edit.AddEditNoteActivity;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.exceptions.Exceptions;
-import io.reactivex.functions.Consumer;
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
-import retrofit2.HttpException;
-import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
 
     private NoteViewModel noteViewModel;
-
-    // test api
-    MyApi myApi;
-    CompositeDisposable compositeDisposable;
-    // test
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,96 +87,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // test
-        Retrofit retrofit = RetrofitClient.getInstance(new NetworkConnectionInterceptor(this.getApplicationContext()));
-        myApi = retrofit.create(MyApi.class);
-        compositeDisposable = new CompositeDisposable();
-        // ---
-        compositeDisposable.add(
-                myApi.getPosts()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new CallbackWrapper<Response<List<PostsResponse>>>() {
-
-                            @Override
-                            protected void onSuccess(Response<List<PostsResponse>> listResponse) {
-                                Log.e("su ", "pass");
-                            }
-
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                if (throwable instanceof HttpException) {
-                                    Log.e("Error h", throwable.getMessage());
-                                } else if (throwable instanceof NoInternetException) {
-                                    Log.e("Error n", throwable.getMessage());
-                                } else if (throwable instanceof Exception) {
-                                    Log.e("Error e", throwable.getMessage());
-                                }
-                            }
-                        })
-                        /*.subscribe(new Consumer<Response<List<PostsResponse>>>() {
-                            @Override
-                            public void accept(Response<List<PostsResponse>> listResponse) throws Exception {
-                                throw new NoInternetException("Make sure ...");
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable e) throws Exception {
-                                Log.e(" e :", e.getMessage());
-                                try {
-                                    throw Exceptions.propagate(e);
-                                } catch (NoInternetException x) {
-                                    Log.e("Error no i ", x.getMessage());
-                                } catch (Exception u){
-                                    Log.e("Error ", u.getMessage());
-                                }
-                            }
-                        })*/
-        );
-
-/*
-        myApi.getPosts()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new io.reactivex.Observer<List<PostsResponse>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(List<PostsResponse> postsResponses) {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-*/
-        /*
-        .subscribe(new Consumer<List<PostsResponse>>() {
-                    @Override
-                    public void accept(List<PostsResponse> posts) throws Exception {
-                        //displayData(posts);
-                        StringBuffer buffer = new StringBuffer();
-                        for (PostsResponse post : posts) {
-                            buffer.append(post.title);
-                            buffer.append(", ");
-                        }
-
-                        Toast.makeText(MainActivity.this, "POSTS : "+buffer.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                }));
-         */
-        // test
+        noteViewModel.fetchNotes();
     }
 
     @Override
@@ -258,11 +143,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // test
     @Override
     protected void onStop() {
-        compositeDisposable.clear();
+        noteViewModel.onStop();
         super.onStop();
     }
-    // test
 }
