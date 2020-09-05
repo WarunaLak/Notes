@@ -11,13 +11,7 @@ import retrofit2.http.GET;
 
 public interface MyApi {
 
-//    @GET("posts")
-//    Response<List<PostsResponse>> getPosts();
-
     @GET("?notes&u=1")
     Observable<Response<NotesResponse>> getNotes();
-
-    @GET("posts")
-    Observable<Response<List<PostsResponse>>> getPosts();
 
 }

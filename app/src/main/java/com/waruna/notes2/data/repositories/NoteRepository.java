@@ -46,7 +46,7 @@ public class NoteRepository {
 
     public Disposable fetchNotes(final RequestListener listener) {
 
-        Disposable disposable = myApi.getNotes()
+        return myApi.getNotes()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -61,13 +61,11 @@ public class NoteRepository {
                         },
                         new Consumer<Throwable>() {
                             @Override
-                            public void accept(Throwable throwable) throws Exception {
+                            public void accept(Throwable throwable) {
                                 listener.onError(throwable);
                             }
                         }
                 );
-
-        return disposable;
     }
 
     public void insert(final Note note) {
