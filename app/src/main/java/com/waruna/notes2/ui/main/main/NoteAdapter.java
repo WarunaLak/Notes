@@ -1,4 +1,4 @@
-package com.waruna.notes2.ui.note.main;
+package com.waruna.notes2.ui.main.main;
 
 import android.view.LayoutInflater;
 import android.view.View;

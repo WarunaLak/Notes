@@ -1,4 +1,4 @@
-package com.waruna.notes2.ui.note.main;
+package com.waruna.notes2.ui.main.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,8 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.waruna.notes2.R;
 import com.waruna.notes2.data.db.entities.Note;
-import com.waruna.notes2.ui.note.edit.AddEditNoteActivity;
-import com.waruna.notes2.ui.note.NoteViewModel;
+import com.waruna.notes2.ui.auth.login.LoginActivity;
+import com.waruna.notes2.ui.main.edit.AddEditNoteActivity;
+import com.waruna.notes2.ui.main.NoteViewModel;
 
 import java.util.List;
 
@@ -138,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.delete_all_notes:
                 noteViewModel.deleteAllNotes();
                 Toast.makeText(this, "All notes deleted", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.sync:
+                startActivity(new Intent(this, LoginActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

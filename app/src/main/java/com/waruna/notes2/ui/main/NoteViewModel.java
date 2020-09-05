@@ -1,4 +1,4 @@
-package com.waruna.notes2.ui.note;
+package com.waruna.notes2.ui.main;
 
 import android.app.Application;
 import android.util.Log;

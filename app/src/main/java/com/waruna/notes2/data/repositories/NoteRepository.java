@@ -22,10 +22,8 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class NoteRepository {
 
@@ -35,18 +33,18 @@ public class NoteRepository {
 
     private NoteDao noteDao;
     private LiveData<List<Note>> allNotes;
-    private MyApi myApi;
+    private MyApi api;
 
     public NoteRepository(Application application) {
         NoteDatabase database = DatabaseClient.getInstance(application);
         noteDao = database.noteDao();
         allNotes = noteDao.getAllNote();
-        myApi = RetrofitClient.getInstance(new NetworkConnectionInterceptor(application));
+        api = RetrofitClient.getInstance(new NetworkConnectionInterceptor(application));
     }
 
     public Disposable fetchNotes(final RequestListener listener) {
 
-        return myApi.getNotes()
+        return api.getNotes(1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -63,6 +61,33 @@ public class NoteRepository {
                             @Override
                             public void accept(Throwable throwable) {
                                 listener.onError(throwable);
+                            }
+                        }
+                );
+    }
+
+    public Disposable saveNote(String title, String desc, int priority, final RequestListener listener){
+
+        final Note note = new Note( title, desc, priority,0);
+
+        return api.saveNote(1,title, desc, priority)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        new CallbackWrapper<Response<NotesResponse>>() {
+
+                            @Override
+                            protected void onSuccess(Response<NotesResponse> response) {
+                                note.setIsSync(1);
+                                insert(note);
+                            }
+
+                        },
+                        new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) {
+                                listener.onError(throwable);
+                                insert(note);
                             }
                         }
                 );

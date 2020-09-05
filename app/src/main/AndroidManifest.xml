@@ -16,8 +16,8 @@
         <activity android:name=".ui.auth.fpassword.ForgetPasswordActivity"></activity>
         <activity android:name=".ui.auth.register.RegisterActivity" />
         <activity android:name=".ui.auth.login.LoginActivity" />
-        <activity android:name=".ui.note.edit.AddEditNoteActivity" />
-        <activity android:name=".ui.note.main.MainActivity">
+        <activity android:name=".ui.main.edit.AddEditNoteActivity" />
+        <activity android:name=".ui.main.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
