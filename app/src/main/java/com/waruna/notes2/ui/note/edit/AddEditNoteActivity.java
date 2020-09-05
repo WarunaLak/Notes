@@ -1,4 +1,4 @@
-package com.waruna.notes2.ui.edit;
+package com.waruna.notes2.ui.note.edit;
 
 import androidx.appcompat.app.AppCompatActivity;
 

@@ -1,4 +1,4 @@
-package com.waruna.notes2.ui.main;
+package com.waruna.notes2.ui.note.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,7 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.waruna.notes2.R;
 import com.waruna.notes2.data.db.entities.Note;
-import com.waruna.notes2.ui.edit.AddEditNoteActivity;
+import com.waruna.notes2.ui.note.edit.AddEditNoteActivity;
+import com.waruna.notes2.ui.note.NoteViewModel;
 
 import java.util.List;
 
