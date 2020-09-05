@@ -35,15 +35,13 @@ public class NoteRepository {
 
     private NoteDao noteDao;
     private LiveData<List<Note>> allNotes;
-    private Retrofit retrofit;
     private MyApi myApi;
 
     public NoteRepository(Application application) {
         NoteDatabase database = DatabaseClient.getInstance(application);
         noteDao = database.noteDao();
         allNotes = noteDao.getAllNote();
-        retrofit = RetrofitClient.getInstance(new NetworkConnectionInterceptor(application));
-        myApi = retrofit.create(MyApi.class);
+        myApi = RetrofitClient.getInstance(new NetworkConnectionInterceptor(application));
     }
 
     public Disposable fetchNotes(final RequestListener listener) {

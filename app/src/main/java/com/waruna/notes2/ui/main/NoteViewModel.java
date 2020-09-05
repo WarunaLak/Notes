@@ -9,7 +9,7 @@ import androidx.lifecycle.LiveData;
 
 import com.waruna.notes2.data.db.entities.Note;
 import com.waruna.notes2.data.repositories.NoteRepository;
-import com.waruna.notes2.util.NoInternetException;
+import com.waruna.notes2.util.exceptions.NoInternetException;
 
 import java.util.List;
 

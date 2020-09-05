@@ -6,10 +6,10 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static Retrofit instance;
+    private static MyApi instance;
     private static OkHttpClient okHttpClient;
 
-    public static Retrofit getInstance(NetworkConnectionInterceptor interceptor){
+    public static MyApi getInstance(NetworkConnectionInterceptor interceptor) {
         if (instance == null)
             okHttpClient = new OkHttpClient().newBuilder()
                     .addInterceptor(interceptor)
@@ -19,7 +19,8 @@ public class RetrofitClient {
                     .baseUrl("http://10.0.3.2/note-api/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .build();
+                    .build()
+                    .create(MyApi.class);
         return instance;
     }
 
