@@ -16,7 +16,7 @@ public class RetrofitClient {
                     .build();
             instance = new Retrofit.Builder()
                     .client(okHttpClient)
-                    .baseUrl("https://jsonplaceholder.typicode.com/")
+                    .baseUrl("http://10.0.3.2/note-api/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build();

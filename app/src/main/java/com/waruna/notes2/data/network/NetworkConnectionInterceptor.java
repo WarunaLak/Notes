@@ -3,7 +3,7 @@ package com.waruna.notes2.data.network;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
-import com.waruna.notes2.util.NoInternetException;
+import com.waruna.notes2.util.exceptions.NoInternetException;
 
 import java.io.IOException;
 

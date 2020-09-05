@@ -1,7 +1,6 @@
 package com.waruna.notes2.data.repositories;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -9,11 +8,12 @@ import com.waruna.notes2.data.db.DatabaseClient;
 import com.waruna.notes2.data.db.NoteDao;
 import com.waruna.notes2.data.db.NoteDatabase;
 import com.waruna.notes2.data.db.entities.Note;
-import com.waruna.notes2.data.network.CallbackWrapper;
+import com.waruna.notes2.util.rxwrapper.CallbackWrapper;
 import com.waruna.notes2.data.network.MyApi;
 import com.waruna.notes2.data.network.NetworkConnectionInterceptor;
 import com.waruna.notes2.data.network.RetrofitClient;
-import com.waruna.notes2.data.network.responses.PostsResponse;
+import com.waruna.notes2.data.network.responses.NotesResponse;
+import com.waruna.notes2.util.rxwrapper.DatabaseCallbackWrapper;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -48,15 +48,16 @@ public class NoteRepository {
 
     public Disposable fetchNotes(final RequestListener listener) {
 
-        Disposable disposable = myApi.getPosts()
+        Disposable disposable = myApi.getNotes()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        new CallbackWrapper<Response<List<PostsResponse>>>() {
+                        new CallbackWrapper<Response<NotesResponse>>() {
 
                             @Override
-                            protected void onSuccess(Response<List<PostsResponse>> listResponse) {
-                                Log.e("su ", "pass");
+                            protected void onSuccess(Response<NotesResponse> response) {
+                                List<Note> notes = response.body().getNotes();
+                                insertAll(notes);
                             }
 
                         },
@@ -81,22 +82,20 @@ public class NoteRepository {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DisposableObserver<Boolean>() {
-                    @Override
-                    public void onNext(Boolean aBoolean) {
-                        //
-                    }
+                .subscribe(new DatabaseCallbackWrapper<Boolean>());
+    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        //
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        //
-                    }
-                });
+    public void insertAll(final List<Note> noteList) {
+        Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                noteDao.insertAll(noteList);
+                return true;
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.newThread())
+                .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
     public void update(final Note note) {
@@ -109,7 +108,7 @@ public class NoteRepository {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.newThread())
-                .subscribe();
+                .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
     public void delete(final Note note) {
@@ -122,7 +121,7 @@ public class NoteRepository {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+                .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
     public void deleteAllNotes() {
@@ -135,7 +134,7 @@ public class NoteRepository {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+                .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
     public LiveData<List<Note>> getAllNotes() {

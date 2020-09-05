@@ -1,5 +1,6 @@
 package com.waruna.notes2.data.network;
 
+import com.waruna.notes2.data.network.responses.NotesResponse;
 import com.waruna.notes2.data.network.responses.PostsResponse;
 
 import java.util.List;
@@ -12,6 +13,9 @@ public interface MyApi {
 
 //    @GET("posts")
 //    Response<List<PostsResponse>> getPosts();
+
+    @GET("?notes&u=1")
+    Observable<Response<NotesResponse>> getNotes();
 
     @GET("posts")
     Observable<Response<List<PostsResponse>>> getPosts();

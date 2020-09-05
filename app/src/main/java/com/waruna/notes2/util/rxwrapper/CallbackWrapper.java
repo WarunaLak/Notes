@@ -1,6 +1,6 @@
-package com.waruna.notes2.data.network;
+package com.waruna.notes2.util.rxwrapper;
 
-import com.waruna.notes2.util.ApiException;
+import com.waruna.notes2.util.exceptions.ApiException;
 
 import io.reactivex.functions.Consumer;
 import retrofit2.Response;
