@@ -14,16 +14,27 @@ public class Note {
     private int priority;
     @ColumnInfo(name = "is_sync")
     private int isSync;
+    @ColumnInfo(defaultValue = "0")
+    private int remove;
 
     public Note(String title, String description, int priority, int isSync) {
         this.title = title;
         this.description = description;
         this.priority = priority;
         this.isSync = isSync;
+        this.remove = 0;
     }
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getRemove() {
+        return remove;
+    }
+
+    public void setRemove(int remove) {
+        this.remove = remove;
     }
 
     public int getId() {
