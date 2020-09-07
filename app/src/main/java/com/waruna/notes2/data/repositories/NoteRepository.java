@@ -3,11 +3,14 @@ package com.waruna.notes2.data.repositories;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
+import androidx.room.util.StringUtil;
 
 import com.waruna.notes2.data.db.DatabaseClient;
 import com.waruna.notes2.data.db.NoteDao;
 import com.waruna.notes2.data.db.NoteDatabase;
+import com.waruna.notes2.data.db.UserDao;
 import com.waruna.notes2.data.db.entities.Note;
+import com.waruna.notes2.data.db.entities.User;
 import com.waruna.notes2.util.rxwrapper.CallbackWrapper;
 import com.waruna.notes2.data.network.MyApi;
 import com.waruna.notes2.data.network.NetworkConnectionInterceptor;
@@ -29,22 +32,25 @@ public class NoteRepository {
 
     public interface RequestListener {
         void onError(Throwable t);
+        void onSuccess();
     }
 
     private NoteDao noteDao;
+    private UserDao userDao;
     private LiveData<List<Note>> allNotes;
     private MyApi api;
 
     public NoteRepository(Application application) {
         NoteDatabase database = DatabaseClient.getInstance(application);
         noteDao = database.noteDao();
+        userDao = database.userDao();
         allNotes = noteDao.getAllNote();
         api = RetrofitClient.getInstance(new NetworkConnectionInterceptor(application));
     }
 
-    public Disposable fetchNotes(final RequestListener listener) {
+    public Disposable fetchNotes(int userID, final RequestListener listener) {
 
-        return api.getNotes(1)
+        return api.getNotes(userID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -66,11 +72,12 @@ public class NoteRepository {
                 );
     }
 
-    public Disposable saveNote(String title, String desc, int priority, final RequestListener listener){
+    public Disposable saveNote(int userID, Note note, final RequestListener listener){
 
-        final Note note = new Note( title, desc, priority,0);
+        final Note n = note;
+        n.setIsSync(0);
 
-        return api.saveNote(1,title, desc, priority)
+        return api.saveNote(userID,n.getTitle(), n.getDescription(), n.getPriority())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -78,8 +85,8 @@ public class NoteRepository {
 
                             @Override
                             protected void onSuccess(Response<NotesResponse> response) {
-                                note.setIsSync(1);
-                                insert(note);
+                                n.setIsSync(1);
+                                insert(n);
                             }
 
                         },
@@ -87,7 +94,7 @@ public class NoteRepository {
                             @Override
                             public void accept(Throwable throwable) {
                                 listener.onError(throwable);
-                                insert(note);
+                                insert(n);
                             }
                         }
                 );
@@ -160,5 +167,9 @@ public class NoteRepository {
 
     public LiveData<List<Note>> getAllNotes() {
         return allNotes;
+    }
+
+    public LiveData<User> getUser(){
+        return userDao.getUser();
     }
 }

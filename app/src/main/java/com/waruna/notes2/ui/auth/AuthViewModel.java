@@ -45,8 +45,12 @@ public class AuthViewModel extends AndroidViewModel {
 
             @Override
             public void onSuccess(Response<AuthResponse> response) {
-                User user = new User( response.body().getUserID(),email, response.body().isLogin());
-                repository.saveUser(user);
+                if (response.body().isLogin()) {
+                    User user = new User(response.body().getUserID(), email, response.body().isLogin());
+                    repository.saveUser(user);
+                } else {
+                    Log.e("login :", "Fail , "+response.message());
+                }
             }
 
         }));

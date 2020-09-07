@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.waruna.notes2.R;
 import com.waruna.notes2.data.db.entities.Note;
+import com.waruna.notes2.data.db.entities.User;
 import com.waruna.notes2.ui.auth.login.LoginActivity;
 import com.waruna.notes2.ui.main.edit.AddEditNoteActivity;
 import com.waruna.notes2.ui.main.NoteViewModel;
@@ -63,6 +64,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        noteViewModel.getUser().observe(this, new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
+                noteViewModel.setUser(user);
+            }
+        });
+
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -101,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             String description = data.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
             int priority = data.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1);
 
-            Note note = new Note(title, description, priority);
+            Note note = new Note(title, description, priority, 0);
             noteViewModel.insert(note);
 
             Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
@@ -116,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             String description = data.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
             int priority = data.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1);
 
-            Note note = new Note(title, description, priority);
+            Note note = new Note(title, description, priority,0);
             note.setId(id);
             noteViewModel.update(note);
 

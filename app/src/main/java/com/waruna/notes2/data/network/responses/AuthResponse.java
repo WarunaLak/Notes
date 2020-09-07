@@ -5,10 +5,12 @@ import com.google.gson.annotations.SerializedName;
 public class AuthResponse {
 
     @SerializedName("login")
-    private boolean isLogin;
+    private Boolean isLogin;
     @SerializedName("registered")
     private boolean isRegistered;
+    @SerializedName("userID")
     private int userID;
+    @SerializedName("message")
     private String message;
 
     public AuthResponse(boolean isLogin, boolean isRegistered, int userID, String message) {

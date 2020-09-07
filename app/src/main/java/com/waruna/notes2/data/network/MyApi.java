@@ -1,5 +1,6 @@
 package com.waruna.notes2.data.network;
 
+import com.google.gson.annotations.SerializedName;
 import com.waruna.notes2.data.network.responses.AuthResponse;
 import com.waruna.notes2.data.network.responses.NotesResponse;
 
@@ -9,25 +10,27 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface MyApi {
 
     @GET("?notes")
     Observable<Response<NotesResponse>> getNotes(
-            int u
+            @Query("u") int userID
     );
 
     @FormUrlEncoded
     @POST("?notes")
     Observable<Response<NotesResponse>> saveNote(
-            int u,
-            String title,
-            String description,
-            int priority
+            @Field("u") int userID,
+            @Field("title") String title,
+            @Field("description") String description,
+            @Field("priority") int priority
     ) ;
 
     @FormUrlEncoded
-    @POST("?user&login")
+    @POST("login.php")
     Observable<Response<AuthResponse>> login(
             @Field("email") String email,
             @Field("password") String password

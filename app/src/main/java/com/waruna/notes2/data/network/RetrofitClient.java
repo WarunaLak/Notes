@@ -10,6 +10,16 @@ public class RetrofitClient {
     private static OkHttpClient okHttpClient;
 
     public static MyApi getInstance(NetworkConnectionInterceptor interceptor) {
+
+        /*Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();*/
+
+        /* .addConverterFactory(GsonConverterFactory.create(gson))*/
+
+        /*HttpLoggingInterceptor intc = new HttpLoggingInterceptor();
+        intc.setLevel(HttpLoggingInterceptor.Level.BODY);*/
+
         if (instance == null)
             okHttpClient = new OkHttpClient().newBuilder()
                     .addInterceptor(interceptor)

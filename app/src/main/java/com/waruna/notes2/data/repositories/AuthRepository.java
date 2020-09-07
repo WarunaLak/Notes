@@ -1,6 +1,7 @@
 package com.waruna.notes2.data.repositories;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -41,7 +42,6 @@ public class AuthRepository {
     }
 
     public Disposable login (String email, String pass, final RequestListener listener) {
-
         return api.login(email, pass)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
