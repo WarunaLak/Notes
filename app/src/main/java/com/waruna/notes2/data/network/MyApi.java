@@ -37,7 +37,7 @@ public interface MyApi {
     );
 
     @FormUrlEncoded
-    @POST("?user&register")
+    @POST("register.php")
     Observable<Response<AuthResponse>> register(
             @Field("email") String email,
             @Field("password") String password

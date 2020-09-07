@@ -68,7 +68,7 @@ public class AuthViewModel extends AndroidViewModel {
             return;
         }
 
-        if (pass.equals(cPass)){
+        if (!pass.equals(cPass)){
             // auth listener
             return;
         }
