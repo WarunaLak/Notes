@@ -32,7 +32,7 @@ public interface NoteDao {
     @Query("UPDATE note_table SET remove = 1 WHERE id=:id")
     void removeNote(int id);
 
-    @Query("SELECT * FROM note_table ORDER BY priority DESC")
+    @Query("SELECT * FROM note_table WHERE remove = 0 ORDER BY priority DESC")
     LiveData<List<Note>> getAllNote();
 
 }

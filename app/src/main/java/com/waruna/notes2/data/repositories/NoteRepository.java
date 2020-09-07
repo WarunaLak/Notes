@@ -152,6 +152,19 @@ public class NoteRepository {
                 .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
+    public void remove(final int id) {
+        Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                noteDao.removeNote(id);
+                return true;
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DatabaseCallbackWrapper<Boolean>());
+    }
+
     public void deleteAllNotes() {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
