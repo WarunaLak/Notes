@@ -1,4 +1,4 @@
-package com.waruna.notes2.data.db;
+package com.waruna.notes2.data.db.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;

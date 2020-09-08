@@ -1,5 +1,6 @@
-package com.waruna.notes2.ui.main.main;
+package com.waruna.notes2.ui.main.main.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.waruna.notes2.R;
 import com.waruna.notes2.data.db.entities.Note;
 
-public class NoteAdapter extends ListAdapter<Note,NoteAdapter.NoteHolder> {
+public class NoteAdapterO extends ListAdapter<Note, NoteAdapterO.NoteHolder> {
     private OnItemClickListener listener;
 
-    public NoteAdapter() {
+    public NoteAdapterO() {
         super(DIFF_CALLBACK);
     }
 
@@ -48,6 +49,7 @@ public class NoteAdapter extends ListAdapter<Note,NoteAdapter.NoteHolder> {
         noteHolder.textViewTitle.setText(currentNote.getTitle());
         noteHolder.textViewDescription.setText(currentNote.getDescription());
         noteHolder.textViewPriority.setText(String.valueOf(currentNote.getPriority()));
+        Log.e("Note : ", currentNote.toString());
     }
 
     public Note getNoteAt(int position){

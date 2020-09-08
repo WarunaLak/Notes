@@ -22,6 +22,8 @@ public class AddEditNoteActivity extends AppCompatActivity {
             "com.waruna.mvvmarchitectureexample.EXTRA_DESCRIPTION";
     public static final String EXTRA_PRIORITY =
             "com.waruna.mvvmarchitectureexample.EXTRA_PRIORITY";
+    public static final String EXTRA_TYPE =
+            "com.waruna.mvvmarchitectureexample.EXTRA_TYPE";
 
     private EditText editTextTitle, editTextDescription;
     private NumberPicker numberPickerPriority;
@@ -70,6 +72,11 @@ public class AddEditNoteActivity extends AppCompatActivity {
         int id = getIntent().getIntExtra(EXTRA_ID, -1);
         if (id != -1){
             data.putExtra(EXTRA_ID,id);
+        }
+
+        int type = getIntent().getIntExtra(EXTRA_TYPE, -1);
+        if (type != -1){
+            data.putExtra(EXTRA_TYPE,type);
         }
 
         setResult(RESULT_OK,data);

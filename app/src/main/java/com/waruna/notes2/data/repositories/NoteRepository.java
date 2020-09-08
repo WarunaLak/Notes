@@ -3,13 +3,14 @@ package com.waruna.notes2.data.repositories;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
-import androidx.room.util.StringUtil;
 
 import com.waruna.notes2.data.db.DatabaseClient;
-import com.waruna.notes2.data.db.NoteDao;
+import com.waruna.notes2.data.db.dao.NoteDao;
 import com.waruna.notes2.data.db.NoteDatabase;
-import com.waruna.notes2.data.db.UserDao;
+import com.waruna.notes2.data.db.dao.TempNoteDao;
+import com.waruna.notes2.data.db.dao.UserDao;
 import com.waruna.notes2.data.db.entities.Note;
+import com.waruna.notes2.data.db.entities.TempNote;
 import com.waruna.notes2.data.db.entities.User;
 import com.waruna.notes2.util.rxwrapper.CallbackWrapper;
 import com.waruna.notes2.data.network.MyApi;
@@ -37,6 +38,7 @@ public class NoteRepository {
 
     private NoteDao noteDao;
     private UserDao userDao;
+    private TempNoteDao tempDao;
     private LiveData<List<Note>> allNotes;
     private MyApi api;
 
@@ -44,10 +46,12 @@ public class NoteRepository {
         NoteDatabase database = DatabaseClient.getInstance(application);
         noteDao = database.noteDao();
         userDao = database.userDao();
+        tempDao = database.tempNoteDao();
         allNotes = noteDao.getAllNote();
         api = RetrofitClient.getInstance(new NetworkConnectionInterceptor(application));
     }
 
+    // network
     public Disposable fetchNotes(int userID, final RequestListener listener) {
 
         return api.getNotes(userID)
@@ -59,7 +63,7 @@ public class NoteRepository {
                             @Override
                             protected void onSuccess(Response<NotesResponse> response) {
                                 List<Note> notes = response.body().getNotes();
-                                insertAll(notes);
+                                insertAllNotes(notes);
                             }
 
                         },
@@ -75,7 +79,6 @@ public class NoteRepository {
     public Disposable saveNote(int userID, Note note, final RequestListener listener){
 
         final Note n = note;
-        n.setIsSync(0);
 
         return api.saveNote(userID,n.getTitle(), n.getDescription(), n.getPriority())
                 .subscribeOn(Schedulers.io())
@@ -85,25 +88,76 @@ public class NoteRepository {
 
                             @Override
                             protected void onSuccess(Response<NotesResponse> response) {
-                                n.setIsSync(1);
-                                insert(n);
+                                n.setId(response.body().getNoteID());
+                                insertNote(n);
                             }
 
                         },
                         new Consumer<Throwable>() {
                             @Override
                             public void accept(Throwable throwable) {
-                                listener.onError(throwable);
-                                insert(n);
+                                insertTempNote(n, TempNote.PENDING_TO_UPLOAD);
                             }
                         }
                 );
     }
 
-    public void insert(final Note note) {
+    public Disposable removeNote(Note note, final RequestListener listener){
+
+        final Note n = note;
+
+        return api.removeNote(n.getId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        new CallbackWrapper<Response<NotesResponse>>() {
+
+                            @Override
+                            protected void onSuccess(Response<NotesResponse> response) {
+                                deleteNote(n);
+                            }
+
+                        },
+                        new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) {
+                                insertTempNote(n, TempNote.PENDING_TO_REMOVE);
+                            }
+                        }
+                );
+    }
+
+    public Disposable updateNote(Note note, final RequestListener listener){
+
+        final Note n = note;
+
+        return api.updateNote(n.getId(),n.getTitle(), n.getDescription(), n.getPriority())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        new CallbackWrapper<Response<NotesResponse>>() {
+
+                            @Override
+                            protected void onSuccess(Response<NotesResponse> response) {
+                                updateNote(n);
+                            }
+
+                        },
+                        new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) {
+                                deleteNote(n);
+                                insertTempNote(n, TempNote.PENDING_TO_UPLOAD);
+                            }
+                        }
+                );
+    }
+
+    // database
+    public void insertNote(final Note note) {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 noteDao.insert(note);
                 return true;
             }
@@ -113,10 +167,23 @@ public class NoteRepository {
                 .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
-    public void insertAll(final List<Note> noteList) {
+    public void insertTempNote(final Note note, final String type) {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
+                tempDao.insert(new TempNote(type,note));
+                return true;
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DatabaseCallbackWrapper<Boolean>());
+    }
+
+    public void insertAllNotes(final List<Note> noteList) {
+        Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
                 noteDao.insertAll(noteList);
                 return true;
             }
@@ -126,10 +193,10 @@ public class NoteRepository {
                 .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
-    public void update(final Note note) {
+    public void updateNote(final Note note) {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 noteDao.update(note);
                 return true;
             }
@@ -139,10 +206,10 @@ public class NoteRepository {
                 .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
-    public void delete(final Note note) {
+    public void deleteNote(final Note note) {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 noteDao.delete(note);
                 return true;
             }
@@ -152,11 +219,11 @@ public class NoteRepository {
                 .subscribe(new DatabaseCallbackWrapper<Boolean>());
     }
 
-    public void remove(final int id) {
+    public void deleteTempNote(final TempNote note) {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
-                noteDao.removeNote(id);
+            public Boolean call() {
+                tempDao.delete(note);
                 return true;
             }
         })
@@ -168,8 +235,9 @@ public class NoteRepository {
     public void deleteAllNotes() {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 noteDao.deleteAllNotes();
+                tempDao.deleteAllNotes();
                 return true;
             }
         })
@@ -180,6 +248,10 @@ public class NoteRepository {
 
     public LiveData<List<Note>> getAllNotes() {
         return allNotes;
+    }
+
+    public LiveData<List<TempNote>> getAllTempNotes() {
+        return tempDao.getAllNote();
     }
 
     public LiveData<User> getUser(){

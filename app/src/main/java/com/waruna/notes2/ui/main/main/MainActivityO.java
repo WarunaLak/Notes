@@ -2,6 +2,7 @@ package com.waruna.notes2.ui.main.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,8 +33,8 @@ import com.waruna.notes2.util.notelist.ListItemUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    public static final int ADD_NOTE_REQUEST = 1;
+public class MainActivityO extends AppCompatActivity {
+    /*public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
 
     private NoteViewModel noteViewModel;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         buttonAddNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AddEditNoteActivity.class);
+                Intent intent = new Intent(MainActivityO.this, AddEditNoteActivity.class);
                 startActivityForResult(intent, ADD_NOTE_REQUEST);
             }
         });
@@ -61,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
         final NoteAdapter adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
-        adapter.submitList(items);
 
         noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
         noteViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
@@ -69,18 +69,18 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(@Nullable List<Note> notes) {
                 // update Recyclerview
                 //Toast.makeText(MainActivity.this, "onChanged", Toast.LENGTH_SHORT).show();
-                //adapter.submitList(notes);
-                assert notes != null;
+                adapter.submitList(notes);
                 ListItemUtil.generateFromNote(items, notes);
-                adapter.notifyDataSetChanged();
             }
         });
 
         noteViewModel.getAllTempNotes().observe(this, new Observer<List<TempNote>>() {
             @Override
             public void onChanged(List<TempNote> tempNotes) {
+                for (TempNote t : tempNotes) {
+                    Log.e("Temp note :", t.toString());
+                }
                 ListItemUtil.generateFromTempNote(items, tempNotes);
-                adapter.notifyDataSetChanged();
             }
         });
 
@@ -101,38 +101,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-                noteViewModel.delete(adapter.getItemAt(viewHolder.getAdapterPosition()));
-                Toast.makeText(MainActivity.this, "Note deleted", Toast.LENGTH_SHORT).show();
+                noteViewModel.delete(adapter.getNoteAt(viewHolder.getAdapterPosition()).getId());
+                Toast.makeText(MainActivityO.this, "Note deleted", Toast.LENGTH_SHORT).show();
             }
         }).attachToRecyclerView(recyclerView);
 
         adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(Item item) {
-
-                String title = "", dec = "";
-                int id = 0, priority = 0, type;
-
-                type = item.getNoteType();
-
-                if (item.getNoteType() == Item.ITEM_NOTE_DEFAULT){
-                    id = item.getNote().getId();
-                    title = item.getNote().getTitle();
-                    dec = item.getNote().getDescription();
-                    priority = item.getNote().getPriority();
-                } else if (item.getNoteType() == Item.ITEM_NOTE_TEMP){
-                    id = item.getTempNote().getId();
-                    title = item.getTempNote().getNote().getTitle();
-                    dec = item.getTempNote().getNote().getDescription();
-                    priority = item.getTempNote().getNote().getPriority();
-                }
-
-                Intent intent = new Intent(MainActivity.this, AddEditNoteActivity.class);
-                intent.putExtra(AddEditNoteActivity.EXTRA_ID, id);
-                intent.putExtra(AddEditNoteActivity.EXTRA_TITLE, title);
-                intent.putExtra(AddEditNoteActivity.EXTRA_DESCRIPTION, dec);
-                intent.putExtra(AddEditNoteActivity.EXTRA_PRIORITY, priority);
-                intent.putExtra(AddEditNoteActivity.EXTRA_TYPE, type);
+            public void onItemClick(Note note) {
+                Intent intent = new Intent(MainActivityO.this, AddEditNoteActivity.class);
+                intent.putExtra(AddEditNoteActivity.EXTRA_ID, note.getId());
+                intent.putExtra(AddEditNoteActivity.EXTRA_TITLE, note.getTitle());
+                intent.putExtra(AddEditNoteActivity.EXTRA_DESCRIPTION, note.getDescription());
+                intent.putExtra(AddEditNoteActivity.EXTRA_PRIORITY, note.getPriority());
                 startActivityForResult(intent, EDIT_NOTE_REQUEST);
             }
         });
@@ -143,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK) {
-            assert data != null;
             String title = data.getStringExtra(AddEditNoteActivity.EXTRA_TITLE);
             String description = data.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
             int priority = data.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1);
@@ -153,15 +133,9 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
         } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK) {
-            assert data != null;
             int id = data.getIntExtra(AddEditNoteActivity.EXTRA_ID, -1);
-            int type = data.getIntExtra(AddEditNoteActivity.EXTRA_TYPE, -1);
 
             if (id == -1) {
-                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (type == -1) {
                 Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -171,9 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
             Note note = new Note(title, description, priority);
             note.setId(id);
-            TempNote tn = ListItemUtil.getTempNote(id, items);
-            Item item = new Item(note,tn,type,0);
-            noteViewModel.update(item);
+            noteViewModel.update(note);
 
             Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show();
         } else {
@@ -207,5 +179,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         noteViewModel.onStop();
         super.onStop();
-    }
+    }*/
 }

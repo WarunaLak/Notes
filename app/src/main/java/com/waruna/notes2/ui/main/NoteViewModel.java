@@ -8,9 +8,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.waruna.notes2.data.db.entities.Note;
+import com.waruna.notes2.data.db.entities.TempNote;
 import com.waruna.notes2.data.db.entities.User;
 import com.waruna.notes2.data.repositories.NoteRepository;
+import com.waruna.notes2.ui.main.main.adapter.Item;
 import com.waruna.notes2.util.exceptions.NoInternetException;
+import com.waruna.notes2.util.notelist.ListItemUtil;
 
 import java.util.List;
 
@@ -20,6 +23,7 @@ import retrofit2.HttpException;
 public class NoteViewModel extends AndroidViewModel {
     private NoteRepository repository;
     private LiveData<List<Note>> allNotes;
+    private LiveData<List<TempNote>> allTempNotes;
     private CompositeDisposable compositeDisposable;
     private User user;
 
@@ -27,6 +31,7 @@ public class NoteViewModel extends AndroidViewModel {
         super(application);
         repository = new NoteRepository(application);
         allNotes = repository.getAllNotes();
+        allTempNotes = repository.getAllTempNotes();
         compositeDisposable = new CompositeDisposable();
     }
 
@@ -55,7 +60,7 @@ public class NoteViewModel extends AndroidViewModel {
         compositeDisposable.clear();
     }
 
-    public void insert(Note note) {
+    public void save(Note note) {
         if (user != null && user.isLogin()){
             compositeDisposable.add(repository.saveNote( user.getUserID(), note, new NoteRepository.RequestListener() {
                 @Override
@@ -67,16 +72,67 @@ public class NoteViewModel extends AndroidViewModel {
                 public void onSuccess() {}
             }));
         } else {
-            repository.insert(note);
+            repository.insertTempNote(note, TempNote.PENDING_TO_UPLOAD);
         }
     }
 
-    public void update(Note note) {
-        repository.update(note);
+    public void update(Item item) {
+
+        Note note = item.getNote();
+
+        if (item.getNoteType() == Item.ITEM_NOTE_DEFAULT) {
+
+            if (user != null && user.isLogin()){
+                compositeDisposable.add(repository.updateNote( note, new NoteRepository.RequestListener() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.e("save error", t.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                    }
+                }));
+            } else {
+                repository.deleteNote(note);
+                repository.insertTempNote(note, TempNote.PENDING_TO_UPLOAD);
+            }
+
+        } else if (item.getNoteType() == Item.ITEM_NOTE_TEMP){
+
+            TempNote tn = item.getTempNote();
+
+            if (tn != null) {
+                repository.deleteTempNote(tn);
+                save(note);
+            }
+        }
     }
 
-    public void delete(int id) {
-        repository.remove(id);
+    public void delete(Item item) {
+
+        if (item.getNoteType() == Item.ITEM_NOTE_DEFAULT) {
+
+            final Note note = item.getNote();
+
+            if (user != null && user.isLogin()){
+                compositeDisposable.add(repository.removeNote( note, new NoteRepository.RequestListener() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.e("delete error", t.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess() {}
+                }));
+            } else {
+                repository.deleteNote(note);
+                repository.insertTempNote(note, TempNote.PENDING_TO_REMOVE);
+            }
+        } else if (item.getNoteType() == Item.ITEM_NOTE_TEMP){
+            repository.deleteTempNote(item.getTempNote());
+        }
+
     }
 
     public void deleteAllNotes() {
@@ -85,6 +141,10 @@ public class NoteViewModel extends AndroidViewModel {
 
     public LiveData<List<Note>> getAllNotes() {
         return allNotes;
+    }
+
+    public LiveData<List<TempNote>> getAllTempNotes() {
+        return allTempNotes;
     }
 
     public LiveData<User> getUser(){

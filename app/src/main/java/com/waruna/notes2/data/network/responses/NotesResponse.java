@@ -7,11 +7,17 @@ import java.util.List;
 public class NotesResponse {
 
     private boolean inserted;
+    private boolean updated;
+    private boolean removed;
+    private int noteID;
     private String message;
     private List<Note> notes;
 
-    public NotesResponse(boolean inserted, String message, List<Note> notes) {
+    public NotesResponse(boolean inserted, boolean updated, boolean removed, int noteID, String message, List<Note> notes) {
         this.inserted = inserted;
+        this.updated = updated;
+        this.removed = removed;
+        this.noteID = noteID;
         this.message = message;
         this.notes = notes;
     }
@@ -22,6 +28,30 @@ public class NotesResponse {
 
     public void setInserted(boolean inserted) {
         this.inserted = inserted;
+    }
+
+    public boolean isUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
+    public boolean isRemoved() {
+        return removed;
+    }
+
+    public void setRemoved(boolean removed) {
+        this.removed = removed;
+    }
+
+    public int getNoteID() {
+        return noteID;
+    }
+
+    public void setNoteID(int noteID) {
+        this.noteID = noteID;
     }
 
     public String getMessage() {

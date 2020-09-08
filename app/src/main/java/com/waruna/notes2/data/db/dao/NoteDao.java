@@ -1,4 +1,4 @@
-package com.waruna.notes2.data.db;
+package com.waruna.notes2.data.db.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -8,6 +8,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.waruna.notes2.data.db.entities.Note;
+import com.waruna.notes2.data.db.entities.User;
 
 import java.util.List;
 
@@ -29,10 +30,7 @@ public interface NoteDao {
     @Query("DELETE FROM note_table")
     void deleteAllNotes();
 
-    @Query("UPDATE note_table SET remove = 1 WHERE id=:id")
-    void removeNote(int id);
-
-    @Query("SELECT * FROM note_table WHERE remove = 0 ORDER BY priority DESC")
+    @Query("SELECT * FROM note_table ORDER BY priority DESC")
     LiveData<List<Note>> getAllNote();
 
 }

@@ -1,13 +1,12 @@
 package com.waruna.notes2.data.repositories;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
 import com.waruna.notes2.data.db.DatabaseClient;
 import com.waruna.notes2.data.db.NoteDatabase;
-import com.waruna.notes2.data.db.UserDao;
+import com.waruna.notes2.data.db.dao.UserDao;
 import com.waruna.notes2.data.db.entities.User;
 import com.waruna.notes2.data.network.MyApi;
 import com.waruna.notes2.data.network.NetworkConnectionInterceptor;

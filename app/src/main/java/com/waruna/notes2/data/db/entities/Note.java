@@ -1,8 +1,11 @@
 package com.waruna.notes2.data.db.entities;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "note_table")
 public class Note {
@@ -12,29 +15,15 @@ public class Note {
     private String title;
     private String description;
     private int priority;
-    @ColumnInfo(name = "is_sync")
-    private int isSync;
-    @ColumnInfo(defaultValue = "0")
-    private int remove;
 
-    public Note(String title, String description, int priority, int isSync) {
+    public Note(String title, String description, int priority) {
         this.title = title;
         this.description = description;
         this.priority = priority;
-        this.isSync = isSync;
-        this.remove = 0;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getRemove() {
-        return remove;
-    }
-
-    public void setRemove(int remove) {
-        this.remove = remove;
     }
 
     public int getId() {
@@ -53,11 +42,10 @@ public class Note {
         return priority;
     }
 
-    public int getIsSync() {
-        return isSync;
-    }
-
-    public void setIsSync(int isSync) {
-        this.isSync = isSync;
+    @NonNull
+    @Override
+    public String toString() {
+        return "{  id : "+ id +", title : "+ title + ", description : "
+                + description + ", priority : " + priority + " };";
     }
 }
